@@ -1,4 +1,6 @@
 // lib/features/orders/presentation/cubit/admin_order_details_cubit.dart
+import 'package:dartz/dartz.dart';
+import 'package:dukan_admin/core/error/failures.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/admin_order_entity.dart';
@@ -6,6 +8,7 @@ import '../../domain/entities/order_sub_entities.dart';
 import '../../domain/usecases/orders_usecases.dart';
 
 enum AdminOrderDetailsStatus { loading, ready, error }
+
 enum StatusUpdateStatus { idle, updating, success, error }
 
 class AdminOrderDetailsState extends Equatable {
@@ -49,7 +52,13 @@ class AdminOrderDetailsState extends Equatable {
 
   @override
   List<Object?> get props => [
-    status, order, items, history, errorMessage, updateStatus, updateError,
+    status,
+    order,
+    items,
+    history,
+    errorMessage,
+    updateStatus,
+    updateError,
   ];
 }
 
@@ -75,17 +84,18 @@ class AdminOrderDetailsCubit extends Cubit<AdminOrderDetailsState> {
       getOrderHistoryUseCase(orderId),
     ]);
 
-    final orderResult = results[0] as dynamic;
-    final itemsResult = results[1] as dynamic;
-    final historyResult = results[2] as dynamic;
+    final orderResult = results[0] as Either<Failure, AdminOrderEntity>;
+    final itemsResult = results[1] as Either<Failure, List<OrderItemEntity>>;
+    final historyResult =
+        results[2] as Either<Failure, List<OrderStatusHistoryEntity>>;
 
-    String? error;
-    orderResult.fold((f) => error = f.message, (_) {});
-    if (error != null) {
+    // لو فشل جلب الطلب الأساسي نوقف هنا
+    if (orderResult.isLeft()) {
+      final failure = orderResult.fold((f) => f, (_) => null)!;
       emit(
         state.copyWith(
           status: AdminOrderDetailsStatus.error,
-          errorMessage: error,
+          errorMessage: failure.message,
         ),
       );
       return;
@@ -94,9 +104,9 @@ class AdminOrderDetailsCubit extends Cubit<AdminOrderDetailsState> {
     emit(
       state.copyWith(
         status: AdminOrderDetailsStatus.ready,
-        order: orderResult.getOrElse(() => null),
-        items: itemsResult.getOrElse(() => []),
-        history: historyResult.getOrElse(() => []),
+        order: orderResult.fold((_) => null, (o) => o),
+        items: itemsResult.fold((_) => [], (i) => i),
+        history: historyResult.fold((_) => [], (h) => h),
       ),
     );
   }
@@ -134,10 +144,7 @@ class AdminOrderDetailsCubit extends Cubit<AdminOrderDetailsState> {
 
   void resetUpdateStatus() {
     emit(
-      state.copyWith(
-        updateStatus: StatusUpdateStatus.idle,
-        updateError: null,
-      ),
+      state.copyWith(updateStatus: StatusUpdateStatus.idle, updateError: null),
     );
   }
 }

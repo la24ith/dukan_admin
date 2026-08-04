@@ -1,4 +1,5 @@
 // lib/features/orders/presentation/screens/admin_order_details_screen.dart
+import 'package:dukan_admin/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
@@ -36,7 +37,7 @@ class _AdminOrderDetailsView extends StatelessWidget {
       body: BlocConsumer<AdminOrderDetailsCubit, AdminOrderDetailsState>(
         listener: (context, state) {
           if (state.updateStatus == StatusUpdateStatus.success) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            rootScaffoldMessengerKey.currentState?.showSnackBar(
               const SnackBar(
                 content: Text('تم تحديث حالة الطلب بنجاح'),
                 backgroundColor: AppColors.jade,
@@ -44,7 +45,7 @@ class _AdminOrderDetailsView extends StatelessWidget {
             );
             context.read<AdminOrderDetailsCubit>().resetUpdateStatus();
           } else if (state.updateStatus == StatusUpdateStatus.error) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            rootScaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
                 content: Text(state.updateError ?? 'حدث خطأ'),
                 backgroundColor: AppColors.error,
@@ -66,8 +67,10 @@ class _AdminOrderDetailsView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(state.errorMessage ?? 'حدث خطأ',
-                      style: AppTextStyles.bodyMuted),
+                  Text(
+                    state.errorMessage ?? 'حدث خطأ',
+                    style: AppTextStyles.bodyMuted,
+                  ),
                   const SizedBox(height: 12),
                   FilledButton(
                     onPressed: () =>
@@ -81,8 +84,7 @@ class _AdminOrderDetailsView extends StatelessWidget {
 
           final order = state.order!;
           final ui = OrderStatusUI.of(order.status);
-          final isUpdating =
-              state.updateStatus == StatusUpdateStatus.updating;
+          final isUpdating = state.updateStatus == StatusUpdateStatus.updating;
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -145,13 +147,15 @@ class _AdminOrderDetailsView extends StatelessWidget {
                 icon: Icons.person_outline,
                 children: [
                   _InfoRow(label: 'الاسم', value: order.customerName),
-                  _InfoRow(label: 'الهاتف', value: order.customerPhone,
-                      isPhone: true),
+                  _InfoRow(
+                    label: 'الهاتف',
+                    value: order.customerPhone,
+                    isPhone: true,
+                  ),
                   _InfoRow(label: 'المحافظة', value: order.governorate),
                   _InfoRow(label: 'المنطقة', value: order.area),
                   if (order.addressDetails != null)
-                    _InfoRow(
-                        label: 'التفاصيل', value: order.addressDetails!),
+                    _InfoRow(label: 'التفاصيل', value: order.addressDetails!),
                 ],
               ),
 
@@ -161,7 +165,9 @@ class _AdminOrderDetailsView extends StatelessWidget {
               _SectionCard(
                 title: 'المنتجات (${state.items.length})',
                 icon: Icons.inventory_2_outlined,
-                children: state.items.map((item) => _ItemRow(item: item)).toList(),
+                children: state.items
+                    .map((item) => _ItemRow(item: item))
+                    .toList(),
               ),
 
               const SizedBox(height: 12),
@@ -245,9 +251,12 @@ class _StatusUpdateButton extends StatelessWidget {
                 decoration: BoxDecoration(color: ui.bg, shape: BoxShape.circle),
                 child: Icon(ui.icon, color: ui.color, size: 18),
               ),
-              title: Text(ui.label,
-                  style: AppTextStyles.bodyLarge
-                      .copyWith(fontWeight: FontWeight.w600)),
+              title: Text(
+                ui.label,
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               onTap: () {
                 Navigator.of(dialogCtx).pop();
                 onUpdate(status);
@@ -315,9 +324,12 @@ class _SectionCard extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: AppColors.jade),
               const SizedBox(width: 8),
-              Text(title,
-                  style: AppTextStyles.bodyLarge
-                      .copyWith(fontWeight: FontWeight.w700)),
+              Text(
+                title,
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -354,13 +366,16 @@ class _InfoRow extends StatelessWidget {
           const Spacer(),
           Text(
             value,
-            style: (isTotal
-                    ? AppTextStyles.headlineSmall.copyWith(color: AppColors.jade)
-                    : AppTextStyles.bodyLarge)
-                .copyWith(
-              color: valueColor,
-              fontFamily: isPhone ? 'monospace' : null,
-            ),
+            style:
+                (isTotal
+                        ? AppTextStyles.headlineSmall.copyWith(
+                            color: AppColors.jade,
+                          )
+                        : AppTextStyles.bodyLarge)
+                    .copyWith(
+                      color: valueColor,
+                      fontFamily: isPhone ? 'monospace' : null,
+                    ),
           ),
         ],
       ),
@@ -405,10 +420,7 @@ class _ItemRow extends StatelessWidget {
               style: AppTextStyles.bodyLarge,
             ),
           ),
-          Text(
-            formatSyp(item.subtotal),
-            style: AppTextStyles.price,
-          ),
+          Text(formatSyp(item.subtotal), style: AppTextStyles.price),
         ],
       ),
     );
@@ -422,8 +434,18 @@ class _HistoryRow extends StatelessWidget {
 
   String _formatDate(DateTime dt) {
     const months = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر',
     ];
     return '${dt.day} ${months[dt.month - 1]} — ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
   }
@@ -453,9 +475,12 @@ class _HistoryRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(ui.label,
-                    style: AppTextStyles.bodyLarge
-                        .copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  ui.label,
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 Text(
                   '${_changedByLabel(history.changedBy)} • ${_formatDate(history.changedAt)}',
                   style: AppTextStyles.caption,

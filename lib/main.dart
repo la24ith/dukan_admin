@@ -20,6 +20,9 @@ Future<void> main() async {
   runApp(const SallaAdminApp());
 }
 
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 class SallaAdminApp extends StatelessWidget {
   const SallaAdminApp({super.key});
 
@@ -28,6 +31,7 @@ class SallaAdminApp extends StatelessWidget {
     return MaterialApp(
       title: 'لوحة تحكم دٌكان',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       theme: AppTheme.light,
       locale: const Locale('ar'),
       supportedLocales: const [Locale('ar')],

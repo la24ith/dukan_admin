@@ -1,6 +1,7 @@
 // lib/features/categories/data/datasources/categories_remote_data_source.dart
 import 'dart:io';
 import 'package:dukan_admin/core/error/supabase_guard.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/image_upload_service.dart';
 import '../models/category_model.dart';
@@ -35,6 +36,16 @@ class CategoriesRemoteDataSourceImpl implements CategoriesRemoteDataSource {
   @override
   Future<List<CategoryModel>> getCategories() async {
     return guardSupabaseCall(() async {
+      // تحقق من الـ session الحالية
+      final session = client.auth.currentSession;
+      debugPrint(
+        '[CATEGORIES] session: ${session != null ? "موجودة" : "null"}',
+      );
+      debugPrint('[CATEGORIES] user id: ${client.auth.currentUser?.id}');
+      debugPrint(
+        '[CATEGORIES] access token: ${session?.accessToken.substring(0, 20)}...',
+      );
+
       final rows = await client
           .from('categories')
           .select()

@@ -1,4 +1,5 @@
 // lib/features/products/presentation/screens/admin_products_screen.dart
+import 'package:dukan_admin/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
@@ -73,22 +74,29 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
       backgroundColor: AppColors.surface,
       appBar: AppBar(title: const Text('المنتجات')),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_products',
         onPressed: () => _openForm(context),
         backgroundColor: AppColors.jade,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('منتج جديد',
-            style: TextStyle(
-                fontFamily: 'Cairo',
-                color: Colors.white,
-                fontWeight: FontWeight.w600)),
+        label: const Text(
+          'منتج جديد',
+          style: TextStyle(
+            fontFamily: 'Cairo',
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       body: BlocConsumer<AdminProductsCubit, AdminProductsState>(
         listener: (context, state) {
           if (state.mutationStatus == ProductMutationStatus.error &&
               state.mutationError != null) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            rootScaffoldMessengerKey.currentState?.showSnackBar(
+              SnackBar(
                 content: Text(state.mutationError!),
-                backgroundColor: AppColors.error));
+                backgroundColor: AppColors.error,
+              ),
+            );
             context.read<AdminProductsCubit>().resetMutation();
           }
         },
@@ -98,36 +106,49 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
               // Search + Stats bar
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (v) =>
-                          setState(() => _searchQuery = v.trim()),
-                      decoration: InputDecoration(
-                        hintText: 'ابحث بالاسم...',
-                        prefixIcon: const Icon(Icons.search_rounded,
-                            color: AppColors.inkMuted, size: 20),
-                        suffixIcon: _searchQuery.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.close_rounded,
-                                    size: 18, color: AppColors.inkMuted),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() => _searchQuery = '');
-                                })
-                            : null,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 11, horizontal: 14),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (v) =>
+                            setState(() => _searchQuery = v.trim()),
+                        decoration: InputDecoration(
+                          hintText: 'ابحث بالاسم...',
+                          prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            color: AppColors.inkMuted,
+                            size: 20,
+                          ),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(
+                                    Icons.close_rounded,
+                                    size: 18,
+                                    color: AppColors.inkMuted,
+                                  ),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() => _searchQuery = '');
+                                  },
+                                )
+                              : null,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 11,
+                            horizontal: 14,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  if (state.status == AdminProductsStatus.ready) ...[
-                    const SizedBox(width: 10),
-                    Text('${state.products.length} منتج',
-                        style: AppTextStyles.bodyMuted),
+                    if (state.status == AdminProductsStatus.ready) ...[
+                      const SizedBox(width: 10),
+                      Text(
+                        '${state.products.length} منتج',
+                        style: AppTextStyles.bodyMuted,
+                      ),
+                    ],
                   ],
-                ]),
+                ),
               ),
 
               // Category Filter
@@ -145,14 +166,15 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
                             .read<AdminProductsCubit>()
                             .setCategoryFilter('all'),
                       ),
-                      ..._categories.map((cat) => _FilterChip(
-                            label: cat.name,
-                            selected:
-                                state.selectedCategoryFilter == cat.id,
-                            onTap: () => context
-                                .read<AdminProductsCubit>()
-                                .setCategoryFilter(cat.id),
-                          )),
+                      ..._categories.map(
+                        (cat) => _FilterChip(
+                          label: cat.name,
+                          selected: state.selectedCategoryFilter == cat.id,
+                          onTap: () => context
+                              .read<AdminProductsCubit>()
+                              .setCategoryFilter(cat.id),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -162,23 +184,27 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
               Expanded(
                 child: state.status == AdminProductsStatus.loading
                     ? const Center(
-                        child: CircularProgressIndicator(
-                            color: AppColors.jade))
+                        child: CircularProgressIndicator(color: AppColors.jade),
+                      )
                     : state.status == AdminProductsStatus.error
-                        ? Center(
-                            child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                Text(state.errorMessage ?? 'حدث خطأ',
-                                    style: AppTextStyles.bodyMuted),
-                                const SizedBox(height: 12),
-                                FilledButton(
-                                    onPressed: () => context
-                                        .read<AdminProductsCubit>()
-                                        .load(),
-                                    child: const Text('إعادة المحاولة')),
-                              ]))
-                        : _buildList(context, state),
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              state.errorMessage ?? 'حدث خطأ',
+                              style: AppTextStyles.bodyMuted,
+                            ),
+                            const SizedBox(height: 12),
+                            FilledButton(
+                              onPressed: () =>
+                                  context.read<AdminProductsCubit>().load(),
+                              child: const Text('إعادة المحاولة'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _buildList(context, state),
               ),
             ],
           );
@@ -191,27 +217,34 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
     final products = _searchQuery.isEmpty
         ? state.products
         : state.products
-            .where((p) =>
-                p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
-            .toList();
+              .where(
+                (p) =>
+                    p.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+              )
+              .toList();
 
     if (products.isEmpty) {
       return Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.inventory_2_outlined,
-              size: 56, color: AppColors.hairline),
-          const SizedBox(height: 12),
-          Text('لا توجد منتجات', style: AppTextStyles.bodyMuted),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.inventory_2_outlined,
+              size: 56,
+              color: AppColors.hairline,
+            ),
+            const SizedBox(height: 12),
+            Text('لا توجد منتجات', style: AppTextStyles.bodyMuted),
+          ],
+        ),
       );
     }
 
     return RefreshIndicator(
       color: AppColors.jade,
-      onRefresh: () =>
-          context.read<AdminProductsCubit>().load(
-            categoryId: state.selectedCategoryFilter,
-          ),
+      onRefresh: () => context.read<AdminProductsCubit>().load(
+        categoryId: state.selectedCategoryFilter,
+      ),
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
         itemCount: products.length,
@@ -220,8 +253,7 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
           product: products[i],
           onEdit: () => _openForm(context, product: products[i]),
           onDelete: () => _confirmDelete(context, products[i]),
-          onAdjustStock: () =>
-              _showStockDialog(context, products[i]),
+          onAdjustStock: () => _showStockDialog(context, products[i]),
         ),
       ),
     );
@@ -231,21 +263,20 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
     showDialog(
       context: context,
       builder: (d) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('حذف المنتج'),
         content: Text('هل تريد حذف "${p.name}"؟'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(d).pop(),
-              child: const Text('إلغاء')),
+            onPressed: () => Navigator.of(d).pop(),
+            child: const Text('إلغاء'),
+          ),
           FilledButton(
             onPressed: () {
               Navigator.of(d).pop();
               context.read<AdminProductsCubit>().delete(p.id);
             },
-            style:
-                FilledButton.styleFrom(backgroundColor: AppColors.error),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('حذف'),
           ),
         ],
@@ -254,33 +285,32 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
   }
 
   void _showStockDialog(BuildContext context, AdminProductEntity p) {
-    final ctrl =
-        TextEditingController(text: p.stockQuantity.toString());
+    final ctrl = TextEditingController(text: p.stockQuantity.toString());
     showDialog(
       context: context,
       builder: (d) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text('تعديل مخزون "${p.name}"'),
         content: TextField(
           controller: ctrl,
           keyboardType: TextInputType.number,
-          decoration:
-              const InputDecoration(labelText: 'الكمية الجديدة'),
+          decoration: const InputDecoration(labelText: 'الكمية الجديدة'),
           autofocus: true,
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(d).pop(),
-              child: const Text('إلغاء')),
+            onPressed: () => Navigator.of(d).pop(),
+            child: const Text('إلغاء'),
+          ),
           FilledButton(
             onPressed: () {
               final qty = int.tryParse(ctrl.text);
               if (qty == null || qty < 0) return;
               Navigator.of(d).pop();
-              context
-                  .read<AdminProductsCubit>()
-                  .adjustStock(productId: p.id, newQuantity: qty);
+              context.read<AdminProductsCubit>().adjustStock(
+                productId: p.id,
+                newQuantity: qty,
+              );
             },
             child: const Text('حفظ'),
           ),
@@ -295,8 +325,11 @@ class _FilterChip extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _FilterChip(
-      {required this.label, required this.selected, required this.onTap});
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,14 +338,13 @@ class _FilterChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         margin: const EdgeInsetsDirectional.only(end: 8),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color:
-              selected ? AppColors.jade : AppColors.surfaceElevated,
+          color: selected ? AppColors.jade : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: selected ? AppColors.jade : AppColors.hairline),
+            color: selected ? AppColors.jade : AppColors.hairline,
+          ),
         ),
         child: Text(
           label,
@@ -358,40 +390,48 @@ class _AdminProductCard extends StatelessWidget {
           // صورة المنتج
           ClipRRect(
             borderRadius: const BorderRadius.horizontal(
-                right: Radius.circular(14)),
+              right: Radius.circular(14),
+            ),
             child: SizedBox(
               width: 90,
               height: 90,
               child: product.mainImageUrl != null
-                  ? Image.network(product.mainImageUrl!,
+                  ? Image.network(
+                      product.mainImageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _placeholder())
+                      errorBuilder: (_, __, ___) => _placeholder(),
+                    )
                   : _placeholder(),
             ),
           ),
           // البيانات
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.name,
-                      style: AppTextStyles.bodyLarge
-                          .copyWith(fontWeight: FontWeight.w600),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    product.name,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 4),
-                  Text(product.categoryName,
-                      style: AppTextStyles.caption),
+                  Text(product.categoryName, style: AppTextStyles.caption),
                   const SizedBox(height: 4),
-                  Row(children: [
-                    Text(formatSyp(product.price),
-                        style: AppTextStyles.price),
-                    const SizedBox(width: 10),
-                    _StockBadge(product: product),
-                  ]),
+                  Row(
+                    children: [
+                      Text(
+                        formatSyp(product.price),
+                        style: AppTextStyles.price,
+                      ),
+                      const SizedBox(width: 10),
+                      _StockBadge(product: product),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -401,20 +441,29 @@ class _AdminProductCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit_outlined,
-                    color: AppColors.jade, size: 18),
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  color: AppColors.jade,
+                  size: 18,
+                ),
                 onPressed: onEdit,
                 tooltip: 'تعديل',
               ),
               IconButton(
-                icon: const Icon(Icons.inventory_outlined,
-                    color: AppColors.brass, size: 18),
+                icon: const Icon(
+                  Icons.inventory_outlined,
+                  color: AppColors.brass,
+                  size: 18,
+                ),
                 onPressed: onAdjustStock,
                 tooltip: 'تعديل المخزون',
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline_rounded,
-                    color: AppColors.error, size: 18),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.error,
+                  size: 18,
+                ),
                 onPressed: onDelete,
                 tooltip: 'حذف',
               ),
@@ -426,10 +475,9 @@ class _AdminProductCard extends StatelessWidget {
   }
 
   Widget _placeholder() => Container(
-        color: AppColors.jadeLight,
-        child: const Icon(Icons.image_outlined,
-            color: AppColors.jade, size: 28),
-      );
+    color: AppColors.jadeLight,
+    child: const Icon(Icons.image_outlined, color: AppColors.jade, size: 28),
+  );
 }
 
 class _StockBadge extends StatelessWidget {
@@ -461,16 +509,20 @@ class _StockBadge extends StatelessWidget {
     }
 
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-          color: bg, borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize: 11,
-              color: color,
-              fontWeight: FontWeight.w600)),
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Cairo',
+          fontSize: 11,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }

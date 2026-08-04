@@ -1,5 +1,6 @@
 // lib/features/products/presentation/screens/admin_product_form_screen.dart
 import 'dart:io';
+import 'package:dukan_admin/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,8 +23,7 @@ class AdminProductFormScreen extends StatefulWidget {
   });
 
   @override
-  State<AdminProductFormScreen> createState() =>
-      _AdminProductFormScreenState();
+  State<AdminProductFormScreen> createState() => _AdminProductFormScreenState();
 }
 
 class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
@@ -46,9 +46,11 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
     _nameCtrl = TextEditingController(text: p?.name ?? '');
     _descCtrl = TextEditingController(text: p?.description ?? '');
     _priceCtrl = TextEditingController(
-        text: p != null ? p.price.toString() : '');
+      text: p != null ? p.price.toString() : '',
+    );
     _stockCtrl = TextEditingController(
-        text: p != null ? p.stockQuantity.toString() : '0');
+      text: p != null ? p.stockQuantity.toString() : '0',
+    );
     _selectedCategoryId = p?.categoryId;
     _isActive = p?.isActive ?? true;
   }
@@ -64,15 +66,18 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
 
   Future<void> _pickImage() async {
     final picked = await _picker.pickImage(
-        source: ImageSource.gallery, imageQuality: 90);
+      source: ImageSource.gallery,
+      imageQuality: 90,
+    );
     if (picked != null) setState(() => _pickedImage = File(picked.path));
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('اختر التصنيف أولاً')));
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
+        const SnackBar(content: Text('اختر التصنيف أولاً')),
+      );
       return;
     }
 
@@ -115,15 +120,17 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
           if (state.mutationStatus == ProductMutationStatus.success) {
             Navigator.of(context).pop();
           } else if (state.mutationStatus == ProductMutationStatus.error) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            rootScaffoldMessengerKey.currentState?.showSnackBar(
+              SnackBar(
                 content: Text(state.mutationError ?? 'حدث خطأ'),
-                backgroundColor: AppColors.error));
+                backgroundColor: AppColors.error,
+              ),
+            );
             widget.cubit.resetMutation();
           }
         },
         builder: (context, state) {
-          final isSaving =
-              state.mutationStatus == ProductMutationStatus.saving;
+          final isSaving = state.mutationStatus == ProductMutationStatus.saving;
 
           return Scaffold(
             appBar: AppBar(
@@ -136,13 +143,19 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: AppColors.jade))
-                      : Text('حفظ',
+                            strokeWidth: 2,
+                            color: AppColors.jade,
+                          ),
+                        )
+                      : Text(
+                          'حفظ',
                           style: TextStyle(
-                              fontFamily: 'Cairo',
-                              color: AppColors.jade,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15)),
+                            fontFamily: 'Cairo',
+                            color: AppColors.jade,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -163,20 +176,19 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.jadeLight,
                               borderRadius: BorderRadius.circular(18),
-                              border:
-                                  Border.all(color: AppColors.hairline),
+                              border: Border.all(color: AppColors.hairline),
                             ),
                             clipBehavior: Clip.antiAlias,
                             child: _pickedImage != null
-                                ? Image.file(_pickedImage!,
-                                    fit: BoxFit.cover)
+                                ? Image.file(_pickedImage!, fit: BoxFit.cover)
                                 : widget.product?.mainImageUrl != null
-                                    ? Image.network(
-                                        widget.product!.mainImageUrl!,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
-                                            _imagePlaceholder())
-                                    : _imagePlaceholder(),
+                                ? Image.network(
+                                    widget.product!.mainImageUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) =>
+                                        _imagePlaceholder(),
+                                  )
+                                : _imagePlaceholder(),
                           ),
                           Positioned(
                             bottom: 8,
@@ -185,12 +197,14 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
                               width: 32,
                               height: 32,
                               decoration: const BoxDecoration(
-                                  color: AppColors.jade,
-                                  shape: BoxShape.circle),
+                                color: AppColors.jade,
+                                shape: BoxShape.circle,
+                              ),
                               child: const Icon(
-                                  Icons.camera_alt_outlined,
-                                  color: Colors.white,
-                                  size: 16),
+                                Icons.camera_alt_outlined,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                             ),
                           ),
                         ],
@@ -202,18 +216,19 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
                   // ─── التصنيف ──────────────────────────────────────
                   DropdownButtonFormField<String>(
                     value: _selectedCategoryId,
-                    decoration:
-                        const InputDecoration(labelText: 'التصنيف'),
+                    decoration: const InputDecoration(labelText: 'التصنيف'),
                     items: widget.categories
-                        .map((cat) => DropdownMenuItem(
-                            value: cat.id, child: Text(cat.name)))
+                        .map(
+                          (cat) => DropdownMenuItem(
+                            value: cat.id,
+                            child: Text(cat.name),
+                          ),
+                        )
                         .toList(),
                     onChanged: isSaving
                         ? null
-                        : (v) =>
-                            setState(() => _selectedCategoryId = v),
-                    validator: (v) =>
-                        v == null ? 'اختر التصنيف' : null,
+                        : (v) => setState(() => _selectedCategoryId = v),
+                    validator: (v) => v == null ? 'اختر التصنيف' : null,
                   ),
                   const SizedBox(height: 14),
 
@@ -221,12 +236,10 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
                   TextFormField(
                     controller: _nameCtrl,
                     enabled: !isSaving,
-                    decoration:
-                        const InputDecoration(labelText: 'اسم المنتج'),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty)
-                            ? 'أدخل اسم المنتج'
-                            : null,
+                    decoration: const InputDecoration(labelText: 'اسم المنتج'),
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'أدخل اسم المنتج'
+                        : null,
                   ),
                   const SizedBox(height: 14),
 
@@ -236,49 +249,49 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
                     enabled: !isSaving,
                     maxLines: 3,
                     decoration: const InputDecoration(
-                        labelText: 'الوصف (اختياري)'),
+                      labelText: 'الوصف (اختياري)',
+                    ),
                   ),
                   const SizedBox(height: 14),
 
                   // ─── السعر والمخزون ───────────────────────────────
-                  Row(children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _priceCtrl,
-                        enabled: !isSaving,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            labelText: 'السعر (ل.س)'),
-                        validator: (v) {
-                          if (v == null || v.isEmpty)
-                            return 'أدخل السعر';
-                          final n = int.tryParse(
-                              v.replaceAll(',', ''));
-                          if (n == null || n < 0)
-                            return 'سعر غير صالح';
-                          return null;
-                        },
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _priceCtrl,
+                          enabled: !isSaving,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'السعر (ل.س)',
+                          ),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'أدخل السعر';
+                            final n = int.tryParse(v.replaceAll(',', ''));
+                            if (n == null || n < 0) return 'سعر غير صالح';
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _stockCtrl,
-                        enabled: !isSaving,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            labelText: 'الكمية'),
-                        validator: (v) {
-                          if (v == null || v.isEmpty)
-                            return 'أدخل الكمية';
-                          final n = int.tryParse(v);
-                          if (n == null || n < 0)
-                            return 'كمية غير صالحة';
-                          return null;
-                        },
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _stockCtrl,
+                          enabled: !isSaving,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'الكمية',
+                          ),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'أدخل الكمية';
+                            final n = int.tryParse(v);
+                            if (n == null || n < 0) return 'كمية غير صالحة';
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
                   const SizedBox(height: 14),
 
                   // ─── نشط / مخفي ──────────────────────────────────
@@ -288,11 +301,14 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
                       onChanged: isSaving
                           ? null
                           : (v) => setState(() => _isActive = v),
-                      title: Text('يظهر للزبائن',
-                          style: AppTextStyles.bodyLarge),
+                      title: Text(
+                        'يظهر للزبائن',
+                        style: AppTextStyles.bodyLarge,
+                      ),
                       subtitle: Text(
-                          _isActive ? 'المنتج نشط' : 'المنتج مخفي',
-                          style: AppTextStyles.caption),
+                        _isActive ? 'المنتج نشط' : 'المنتج مخفي',
+                        style: AppTextStyles.caption,
+                      ),
                       activeColor: AppColors.jade,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -304,24 +320,24 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
                     child: FilledButton(
                       onPressed: isSaving ? null : _submit,
                       style: FilledButton.styleFrom(
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       child: isSaving
                           ? const SizedBox(
                               height: 22,
                               width: 22,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: Colors.white))
+                                strokeWidth: 2.5,
+                                color: Colors.white,
+                              ),
+                            )
                           : Text(
-                              _isEditing
-                                  ? 'حفظ التعديلات'
-                                  : 'إضافة المنتج',
-                              style:
-                                  const TextStyle(fontSize: 15)),
+                              _isEditing ? 'حفظ التعديلات' : 'إضافة المنتج',
+                              style: const TextStyle(fontSize: 15),
+                            ),
                     ),
                   ),
                 ],
@@ -334,7 +350,10 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
   }
 
   Widget _imagePlaceholder() => const Center(
-        child: Icon(Icons.add_photo_alternate_outlined,
-            color: AppColors.jade, size: 40),
-      );
+    child: Icon(
+      Icons.add_photo_alternate_outlined,
+      color: AppColors.jade,
+      size: 40,
+    ),
+  );
 }
