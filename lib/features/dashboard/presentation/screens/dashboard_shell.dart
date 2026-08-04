@@ -1,4 +1,5 @@
 // lib/features/dashboard/presentation/screens/dashboard_shell.dart
+import 'package:dukan_admin/features/coupons/presentation/screens/coupons_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
@@ -50,8 +51,10 @@ class _DashboardShellState extends State<DashboardShell> {
       child: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state.status == AuthStatus.unauthenticated) {
-            Navigator.of(context, rootNavigator: true)
-                .pushNamedAndRemoveUntil(AppRoutes.auth, (r) => false);
+            Navigator.of(
+              context,
+              rootNavigator: true,
+            ).pushNamedAndRemoveUntil(AppRoutes.auth, (r) => false);
           }
         },
         child: Scaffold(
@@ -68,12 +71,15 @@ class _DashboardShellState extends State<DashboardShell> {
           body: IndexedStack(
             index: _index,
             children: [
-            const AdminOrdersScreen(),
-            const AdminProductsScreen(),
-            const CategoriesScreen(),
-            _PlaceholderTabBody(icon: Icons.discount_outlined, label: 'الكوبونات'),
-            _PlaceholderTabBody(icon: Icons.local_shipping_outlined, label: 'التوصيل'),
-          ],
+              const AdminOrdersScreen(),
+              const AdminProductsScreen(),
+              const CategoriesScreen(),
+              const CouponsScreen(),
+              _PlaceholderTabBody(
+                icon: Icons.local_shipping_outlined,
+                label: 'التوصيل',
+              ),
+            ],
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _index,

@@ -27,22 +27,21 @@ import '../../features/products/data/repositories/admin_products_repository_impl
 import '../../features/products/domain/repositories/admin_products_repository.dart';
 import '../../features/products/domain/usecases/products_usecases.dart';
 import '../../features/products/presentation/cubit/admin_products_cubit.dart';
+import '../../features/coupons/data/datasources/coupons_remote_data_source.dart';
+import '../../features/coupons/data/repositories/coupons_repository_impl.dart';
+import '../../features/coupons/domain/repositories/coupons_repository.dart';
+import '../../features/coupons/domain/usecases/coupons_usecases.dart';
+import '../../features/coupons/presentation/cubit/coupons_cubit.dart';
 
 final sl = GetIt.instance;
 
 Future<void> setupInjection() async {
   // External
-  sl.registerLazySingleton<SupabaseClient>(
-    () => Supabase.instance.client,
-  );
-  sl.registerLazySingleton<InternetConnection>(
-    () => InternetConnection(),
-  );
+  sl.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
+  sl.registerLazySingleton<InternetConnection>(() => InternetConnection());
 
   // Core
-  sl.registerLazySingleton<NetworkInfo>(
-    () => NetworkInfoImpl(sl()),
-  );
+  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   // Auth Feature
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -67,10 +66,7 @@ Future<void> setupInjection() async {
     () => AdminOrdersRemoteDataSourceImpl(sl()),
   );
   sl.registerLazySingleton<AdminOrdersRepository>(
-    () => AdminOrdersRepositoryImpl(
-      remoteDataSource: sl(),
-      networkInfo: sl(),
-    ),
+    () => AdminOrdersRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerLazySingleton(() => GetAdminOrders(sl()));
   sl.registerLazySingleton(() => GetAdminOrderDetails(sl()));
@@ -92,27 +88,24 @@ Future<void> setupInjection() async {
 
   // Categories Feature
   sl.registerLazySingleton<CategoriesRemoteDataSource>(
-    () => CategoriesRemoteDataSourceImpl(
-      client: sl(),
-      imageUploadService: sl(),
-    ),
+    () =>
+        CategoriesRemoteDataSourceImpl(client: sl(), imageUploadService: sl()),
   );
   sl.registerLazySingleton<CategoriesRepository>(
-    () => CategoriesRepositoryImpl(
-      remoteDataSource: sl(),
-      networkInfo: sl(),
-    ),
+    () => CategoriesRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerLazySingleton(() => GetCategories(sl()));
   sl.registerLazySingleton(() => AddCategory(sl()));
   sl.registerLazySingleton(() => UpdateCategory(sl()));
   sl.registerLazySingleton(() => DeleteCategory(sl()));
-  sl.registerFactory(() => CategoriesCubit(
-    getCategoriesUseCase: sl(),
-    addCategoryUseCase: sl(),
-    updateCategoryUseCase: sl(),
-    deleteCategoryUseCase: sl(),
-  ));
+  sl.registerFactory(
+    () => CategoriesCubit(
+      getCategoriesUseCase: sl(),
+      addCategoryUseCase: sl(),
+      updateCategoryUseCase: sl(),
+      deleteCategoryUseCase: sl(),
+    ),
+  );
 
   // Products Feature
   sl.registerLazySingleton<AdminProductsRemoteDataSource>(
@@ -122,21 +115,42 @@ Future<void> setupInjection() async {
     ),
   );
   sl.registerLazySingleton<AdminProductsRepository>(
-    () => AdminProductsRepositoryImpl(
-      remoteDataSource: sl(),
-      networkInfo: sl(),
-    ),
+    () =>
+        AdminProductsRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
   sl.registerLazySingleton(() => GetAdminProducts(sl()));
   sl.registerLazySingleton(() => AddAdminProduct(sl()));
   sl.registerLazySingleton(() => UpdateAdminProduct(sl()));
   sl.registerLazySingleton(() => DeleteAdminProduct(sl()));
   sl.registerLazySingleton(() => AdjustProductStock(sl()));
-  sl.registerFactory(() => AdminProductsCubit(
-    getProductsUseCase: sl(),
-    addProductUseCase: sl(),
-    updateProductUseCase: sl(),
-    deleteProductUseCase: sl(),
-    adjustStockUseCase: sl(),
-  ));
+  sl.registerFactory(
+    () => AdminProductsCubit(
+      getProductsUseCase: sl(),
+      addProductUseCase: sl(),
+      updateProductUseCase: sl(),
+      deleteProductUseCase: sl(),
+      adjustStockUseCase: sl(),
+    ),
+  );
+
+  // Coupons Feature
+
+  sl.registerLazySingleton<CouponsRemoteDataSource>(
+    () => CouponsRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<CouponsRepository>(
+    () => CouponsRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerLazySingleton(() => GetCoupons(sl()));
+  sl.registerLazySingleton(() => AddCoupon(sl()));
+  sl.registerLazySingleton(() => UpdateCoupon(sl()));
+  sl.registerLazySingleton(() => DeleteCoupon(sl()));
+  sl.registerFactory(
+    () => CouponsCubit(
+      getCouponsUseCase: sl(),
+      addCouponUseCase: sl(),
+      updateCouponUseCase: sl(),
+      deleteCouponUseCase: sl(),
+    ),
+  );
 }
