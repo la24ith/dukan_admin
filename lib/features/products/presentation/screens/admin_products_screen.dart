@@ -95,6 +95,8 @@ class _AdminProductsViewState extends State<_AdminProductsView> {
               SnackBar(
                 content: Text(state.mutationError!),
                 backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
               ),
             );
             context.read<AdminProductsCubit>().resetMutation();

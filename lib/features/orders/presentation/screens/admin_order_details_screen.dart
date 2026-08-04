@@ -41,6 +41,8 @@ class _AdminOrderDetailsView extends StatelessWidget {
               const SnackBar(
                 content: Text('تم تحديث حالة الطلب بنجاح'),
                 backgroundColor: AppColors.jade,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
               ),
             );
             context.read<AdminOrderDetailsCubit>().resetUpdateStatus();
@@ -49,6 +51,8 @@ class _AdminOrderDetailsView extends StatelessWidget {
               SnackBar(
                 content: Text(state.updateError ?? 'حدث خطأ'),
                 backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
               ),
             );
             context.read<AdminOrderDetailsCubit>().resetUpdateStatus();

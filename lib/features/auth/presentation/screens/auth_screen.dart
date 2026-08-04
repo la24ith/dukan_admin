@@ -57,6 +57,8 @@ class _AuthViewState extends State<_AuthView> {
               SnackBar(
                 content: Text(state.errorMessage ?? 'حدث خطأ'),
                 backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
               ),
             );
           }

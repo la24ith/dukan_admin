@@ -76,7 +76,11 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategoryId == null) {
       rootScaffoldMessengerKey.currentState?.showSnackBar(
-        const SnackBar(content: Text('اختر التصنيف أولاً')),
+        const SnackBar(
+          content: Text('اختر التصنيف أولاً'),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+        ),
       );
       return;
     }
@@ -124,6 +128,8 @@ class _AdminProductFormScreenState extends State<AdminProductFormScreen> {
               SnackBar(
                 content: Text(state.mutationError ?? 'حدث خطأ'),
                 backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
               ),
             );
             widget.cubit.resetMutation();

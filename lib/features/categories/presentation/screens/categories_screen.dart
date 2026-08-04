@@ -64,6 +64,8 @@ class _CategoriesView extends StatelessWidget {
               SnackBar(
                 content: Text(state.mutationError!),
                 backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
               ),
             );
             context.read<CategoriesCubit>().resetMutation();
@@ -347,6 +349,9 @@ class _CategoryFormSheetState extends State<_CategoryFormSheet> {
             SnackBar(
               content: Text(state.mutationError ?? 'حدث خطأ'),
               backgroundColor: AppColors.error,
+
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
             ),
           );
           context.read<CategoriesCubit>().resetMutation();
