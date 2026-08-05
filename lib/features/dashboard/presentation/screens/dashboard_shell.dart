@@ -1,5 +1,6 @@
 // lib/features/dashboard/presentation/screens/dashboard_shell.dart
 import 'package:dukan_admin/features/coupons/presentation/screens/coupons_screen.dart';
+import 'package:dukan_admin/features/delivery_fees/presentation/screens/delivery_fees_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
@@ -75,10 +76,7 @@ class _DashboardShellState extends State<DashboardShell> {
               const AdminProductsScreen(),
               const CategoriesScreen(),
               const CouponsScreen(),
-              _PlaceholderTabBody(
-                icon: Icons.local_shipping_outlined,
-                label: 'التوصيل',
-              ),
+              const DeliveryFeesScreen(),
             ],
           ),
           bottomNavigationBar: NavigationBar(

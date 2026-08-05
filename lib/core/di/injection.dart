@@ -32,6 +32,11 @@ import '../../features/coupons/data/repositories/coupons_repository_impl.dart';
 import '../../features/coupons/domain/repositories/coupons_repository.dart';
 import '../../features/coupons/domain/usecases/coupons_usecases.dart';
 import '../../features/coupons/presentation/cubit/coupons_cubit.dart';
+import '../../features/delivery_fees/data/datasources/delivery_fees_remote_data_source.dart';
+import '../../features/delivery_fees/data/repositories/delivery_fees_repository_impl.dart';
+import '../../features/delivery_fees/domain/repositories/delivery_fees_repository.dart';
+import '../../features/delivery_fees/domain/usecases/delivery_fees_usecases.dart';
+import '../../features/delivery_fees/presentation/cubit/delivery_fees_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -151,6 +156,27 @@ Future<void> setupInjection() async {
       addCouponUseCase: sl(),
       updateCouponUseCase: sl(),
       deleteCouponUseCase: sl(),
+    ),
+  );
+
+  //delivery_fees
+
+  sl.registerLazySingleton<DeliveryFeesRemoteDataSource>(
+    () => DeliveryFeesRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<DeliveryFeesRepository>(
+    () => DeliveryFeesRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerLazySingleton(() => GetDeliveryFees(sl()));
+  sl.registerLazySingleton(() => AddDeliveryFee(sl()));
+  sl.registerLazySingleton(() => UpdateDeliveryFee(sl()));
+  sl.registerLazySingleton(() => DeleteDeliveryFee(sl()));
+  sl.registerFactory(
+    () => DeliveryFeesCubit(
+      getFeesUseCase: sl(),
+      addFeeUseCase: sl(),
+      updateFeeUseCase: sl(),
+      deleteFeeUseCase: sl(),
     ),
   );
 }
